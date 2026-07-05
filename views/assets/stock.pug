@@ -1,0 +1,85 @@
+extends ../layout
+
+block content
+  h2.fw-bold.mb-4 Stock View (Bird's Eye)
+
+  .row.mb-5
+    .col-lg-8
+      .card.border-0.shadow-sm
+        .card-header.bg-transparent.border-bottom.py-3
+          h5.fw-bold.mb-0 Summary by Branch
+        .card-body.p-0
+          .table-responsive
+            table.table.table-hover.align-middle.mb-0
+              thead.table-light
+                tr
+                  th Branch
+                  th In Stock (Qty)
+                  th Issued (Qty)
+                  th.text-end Total Valuation
+              tbody
+                if branchSummary && branchSummary.length > 0
+                  each summary in branchSummary
+                    tr
+                      td
+                        i.fa-solid.fa-location-dot.text-danger.me-2
+                        span.fw-semibold #{summary.Branch}
+                      td
+                        span.badge.bg-primary #{summary.TotalCount} items
+                      td
+                        span.badge.bg-warning.text-dark #{summary.IssuedCount || 0} items
+                      td.text-end.fw-bold ₹#{summary.TotalValue.toLocaleString('en-IN', {minimumFractionDigits: 2})}
+                else
+                  tr
+                    td.text-center.text-muted(colspan="4") No assets in stock.
+        .card-footer.bg-transparent.fw-bold.d-flex.justify-content-between.py-3
+          span Total Available Stock Value:
+          span.text-success ₹#{totalValue.toLocaleString('en-IN', {minimumFractionDigits: 2})}
+
+  .card.border-0.shadow-sm
+    .card-header.bg-transparent.border-bottom.py-3
+      h5.fw-bold.mb-0 Detailed Inventory (In Stock)
+    .card-body.p-4
+      .table-responsive
+        table#stockTable.table.table-striped.table-hover.align-middle(style="width: 100%")
+          thead.table-dark
+            tr
+              th Unique ID
+              th Serial No
+              th Category
+              th Make / Model
+              th Location / Branch
+              th.text-center Qty
+              th Purchase Date
+              th.text-end Total Value (₹)
+              th Action
+          tbody
+            if assets && assets.length > 0
+              each asset in assets
+                tr
+                  td
+                    a.fw-bold.text-decoration-none(href=`/assets/history?AssetId=${asset.AssetId}`) #{asset.UniqueId}
+                  td.font-monospace #{asset.SerialNumber}
+                  td #{asset.Category ? asset.Category.CategoryName : '-'}
+                  td #{asset.Make} #{asset.Model}
+                  td
+                    span.badge.bg-secondary #{asset.Branch || '-'}
+                  td.text-center
+                    span.badge.bg-primary #{asset.Quantity || 0}
+                  td #{asset.PurchaseDate || '-'}
+                  td.text-end
+                    span.fw-semibold #{asset.Value ? (parseFloat(asset.Value) * (parseInt(asset.Quantity) || 1)).toLocaleString('en-IN', {minimumFractionDigits: 2}) : '0.00'}
+                    if asset.Quantity > 1
+                      small.d-block.text-muted.x-small ₹#{parseFloat(asset.Value).toLocaleString('en-IN', {minimumFractionDigits: 2})} × #{asset.Quantity}
+                  td
+                    a.btn.btn-sm.btn-success(href=`/assets/issue?AssetId=${asset.AssetId}`)
+                      i.fa-solid.fa-handshake.me-1
+                      | Issue
+            else
+              tr
+                td.text-center.text-muted(colspan="9") No assets available in stock.
+          tfoot
+            tr.table-secondary.fw-bold
+              td.text-end(colspan="7") Grand Total Value:
+              td.text-end.text-success ₹#{totalValue.toLocaleString('en-IN', {minimumFractionDigits: 2})}
+              td

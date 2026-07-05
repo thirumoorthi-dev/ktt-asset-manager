@@ -1,0 +1,108 @@
+extends ../layout
+
+block content
+  .d-flex.justify-content-between.align-items-center.mb-4
+    h2.fw-bold.mb-0 Asset Master
+    a.btn.btn-primary(href="/assets/create")
+      i.fa-solid.fa-plus.me-2
+      | Add Asset
+
+  .card.border-0.shadow-sm.mb-4
+    .card-body.py-3
+      form.row.g-3.align-items-end(method="GET" action="/assets")
+        .col-md-4
+          label.form-label.fw-bold.small(for="categorySelect") Filter by Category
+          select#categorySelect.form-select.form-select-sm(name="category" onchange="this.form.submit()")
+            option(value="") -- All Categories --
+            if categories && categories.length > 0
+              each cat in categories
+                option(value=cat.CategoryId selected=(currentCategoryFilter === cat.CategoryId)) #{cat.CategoryName}
+        
+        .col-md-4
+          label.form-label.fw-bold.small(for="statusSelect") Filter by Status
+          select#statusSelect.form-select.form-select-sm(name="status" onchange="this.form.submit()")
+            option(value="" selected=(currentStatusFilter === '')) Active (In Stock & Issued)
+            option(value="InStock" selected=(currentStatusFilter === 'InStock')) In Stock Only
+            option(value="Issued" selected=(currentStatusFilter === 'Issued')) Issued Only
+            option(value="Scrapped" selected=(currentStatusFilter === 'Scrapped')) Scrapped Only
+            option(value="all" selected=(currentStatusFilter === 'all')) -- All Registered Assets --
+
+        .col-md-4
+          a.btn.btn-sm.btn-outline-secondary.w-100(href="/assets") Reset Filters
+
+  .card.border-0.shadow-sm
+    .card-body.p-4
+      .table-responsive
+        table#assetsTable.table.table-striped.table-hover.align-middle(style="width: 100%")
+          thead.table-dark
+            tr
+              th Unique ID
+              th Serial No
+              th Category
+              th Make / Model
+              th Value (₹)
+              th.text-center In Stock
+              th Status
+              th Assigned Out
+              th Actions
+          tbody
+            if assets && assets.length > 0
+              each asset in assets
+                tr
+                  td
+                    a.fw-bold.text-decoration-none(href=`/assets/history?AssetId=${asset.AssetId}`) #{asset.UniqueId}
+                  td.font-monospace #{asset.SerialNumber}
+                  td #{asset.Category ? asset.Category.CategoryName : '-'}
+                  td #{asset.Make} #{asset.Model}
+                  td #{asset.Value ? parseFloat(asset.Value).toLocaleString('en-IN', {minimumFractionDigits: 2}) : '0.00'}
+                  td.text-center.fw-semibold #{asset.Quantity || 0}
+                  td
+                    if asset.Status === 'InStock'
+                      span.badge.bg-success-subtle.text-success.px-2.py-1.border.border-success-subtle In Stock
+                    else if asset.Status === 'Issued'
+                      span.badge.bg-warning-subtle.text-warning.px-2.py-1.border.border-warning-subtle Issued
+                    else if asset.Status === 'Scrapped'
+                      span.badge.bg-danger-subtle.text-danger.px-2.py-1.border.border-danger-subtle Scrapped
+                  td
+                    if asset.issuedQty > 0
+                      a.text-decoration-none(href=`/assets/history?AssetId=${asset.AssetId}`)
+                        span.fw-semibold.small #{asset.issuedQty} unit(s) out
+                      if asset.CurrentEmployee
+                        small.text-muted.d-block.x-small Latest: #{asset.CurrentEmployee.EmployeeName}
+                    else
+                      span.text-muted.small -
+                  td
+                    .btn-group(role="group")
+                      a.btn.btn-sm.btn-outline-primary(href=`/assets/edit/${asset.AssetId}` title="Edit Details")
+                        i.fa-solid.fa-pen-to-square
+                      
+                      if asset.Status === 'InStock' || asset.issuedQty > 0
+                        a.btn.btn-sm.btn-outline-success(href=`/assets/issue?AssetId=${asset.AssetId}` title="Issue Asset")
+                          i.fa-solid.fa-handshake
+                      if asset.Status === 'Issued' || asset.issuedQty > 0
+                        a.btn.btn-sm.btn-outline-warning(href=`/assets/return?AssetId=${asset.AssetId}` title="Return Asset")
+                          i.fa-solid.fa-rotate-left
+
+                      if asset.Status !== 'Scrapped'
+                        button.btn.btn-sm.btn-outline-danger.scrap-btn(type="button" data-id=asset.AssetId data-unique=asset.UniqueId title="Scrap Asset")
+                          i.fa-solid.fa-trash-can
+            else
+              tr
+                td.text-center.text-muted(colspan="9") No assets found.
+
+  #scrapModal.modal.fade(tabindex="-1" aria-labelledby="scrapModalLabel" aria-hidden="true")
+    .modal-dialog
+      .modal-content
+        .modal-header.bg-danger.text-white
+          h5#scrapModalLabel.modal-title Scrap Asset
+          button.btn-close.btn-close-white(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          p Are you sure you want to mark asset 
+            strong#scrapAssetUniqueId 
+            |  as scrapped? This action hides it from inventory tracking and active assignments.
+          .mb-3
+            label.form-label.fw-bold(for="scrapReason") Reason for Scrapping *
+            textarea#scrapReason.form-control(rows="3" placeholder="Explain why this asset is obsolete or broken..." required)
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancel
+          button#confirmScrapBtn.btn.btn-danger(type="button") Confirm Scrap

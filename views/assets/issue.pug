@@ -1,0 +1,46 @@
+extends ../layout
+
+block content
+  .row.justify-content-center
+    .col-lg-8
+      .card.border-0.shadow-sm
+        .card-header.bg-transparent.border-bottom.py-3.d-flex.justify-content-between.align-items-center
+          h4.fw-bold.mb-0 Issue Asset to Employee
+          a.btn.btn-sm.btn-outline-secondary(href="/assets") 
+            i.fa-solid.fa-arrow-left.me-1
+            | Back to Master
+        .card-body.p-4
+          form(method="POST" action="/assets/issue")
+            .mb-3
+              label.form-label.fw-semibold(for="AssetId") Select Asset (In Stock) *
+              select#AssetId.form-select(name="AssetId" required)
+                option(value="") -- Select Asset to Issue --
+                each asset in assets
+                  option(value=asset.AssetId selected=(selectedAssetId === asset.AssetId)) #{asset.UniqueId} [#{asset.Make} #{asset.Model}] (SN: #{asset.SerialNumber})
+              small.text-muted Only assets currently in stock are listed.
+
+            .mb-3
+              label.form-label.fw-semibold(for="EmployeeId") Select Employee (Active) *
+              select#EmployeeId.form-select(name="EmployeeId" required)
+                option(value="") -- Select Assignee --
+                each emp in employees
+                  option(value=emp.EmployeeId) #{emp.EmployeeName} [#{emp.EmployeeCode}] (#{emp.Department})
+              small.text-muted Only active employees can receive assets.
+
+            .row.g-3.mb-4
+              .col-md-6
+                label.form-label.fw-semibold(for="IssueDate") Issue Date *
+                input#IssueDate.form-control(type="date" name="IssueDate" required)
+              .col-md-6
+                label.form-label.fw-semibold(for="Notes") Handover Notes
+                textarea#Notes.form-control(name="Notes" rows="2" placeholder="e.g. Pre-configured dev tools, temporary assignment...")
+
+            .d-grid
+              button.btn.btn-primary.btn-lg(type="submit")
+                i.fa-solid.fa-handshake.me-2
+                | Confirm Handover
+
+    script.
+      document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('IssueDate').valueAsDate = new Date();
+      });

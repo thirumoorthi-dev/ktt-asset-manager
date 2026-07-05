@@ -1,0 +1,68 @@
+extends ../layout.pug
+
+block content
+  .login-body
+    .login-card
+      .text-center.mb-4
+        i.fa-solid.fa-boxes-packing.fa-3x.login-logo-icon.mb-3
+        h3.login-title KT Asset Tracker
+        p.login-subtitle KT Telematic Solutions Asset Management
+      
+      form(method='POST', action='/login')
+        .input-group.login-input-group.mb-3
+          span.input-group-text
+            i.fa-solid.fa-user
+          input#username.form-control(type='text', name='username', placeholder='Username', required, autofocus)
+        
+        .input-group.login-input-group.mb-3
+          span.input-group-text
+            i.fa-solid.fa-lock
+          input#password_inp.form-control(type='password', name='password', placeholder='Password', required)
+          button#togglePassword.btn-toggle-pwd(type='button', title='Show / Hide Password')
+            i.fa-solid.fa-eye-slash
+        
+        .d-flex.justify-content-between.align-items-center.mb-4
+          a.login-forgot-link(href='/password_reset') Forgot Password?
+        
+        button.btn.btn-signin.w-100.fw-bold(type='submit') SIGN IN
+        
+        //- Google login button if needed
+        .google-login-btn-container.text-center.mt-4
+          div#g_id_onload(data-client_id='845451996773-jrmlrdnrm3g57o00h85b3t396d19o442.apps.googleusercontent.com', data-context='signin', data-ux_mode='popup', data-callback='handleCredentialResponse', data-auto_prompt='false')
+          div.g_id_signin(data-type='standard', data-shape='rectangular', data-theme='outline', data-text='signin_with', data-size='large', data-logo_alignment='left')
+      
+      .social-login-footer.text-center.mt-4
+        a.login-footer-link.mx-2(href='https://www.facebook.com/KTTelematic', target='_blank', title='Facebook')
+          i.fa-brands.fa-facebook.fa-lg
+        a.login-footer-link.mx-2(href='https://www.instagram.com/kttelematicsolutions', target='_blank', title='Instagram')
+          i.fa-brands.fa-instagram.fa-lg
+        a.login-footer-link.mx-2(href='https://www.linkedin.com/company/ktt', target='_blank', title='LinkedIn')
+          i.fa-brands.fa-linkedin.fa-lg
+        a.login-footer-link.mx-2(href='https://www.youtube.com/@KTTelematicKTMotorsLtd', target='_blank', title='Youtube')
+          i.fa-brands.fa-youtube.fa-lg
+
+      .text-center.mt-4.login-footer-text
+        div © 2026 KT Telematic Solutions Pvt. Ltd.
+        div.mt-1
+          a.login-footer-link(href='privacy', title='Privacy Statement', target='_blank') Privacy Statement
+          span.mx-2 |
+          a.login-footer-link(href='terms', title='Terms Of Service', target='_blank') Terms Of Service
+
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      const togglePassword = document.querySelector('#togglePassword');
+      const password = document.querySelector('#password_inp');
+      const toggleIcon = togglePassword.querySelector('i');
+
+      togglePassword.addEventListener('click', function (e) {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        if (type === 'password') {
+          toggleIcon.classList.remove('fa-eye');
+          toggleIcon.classList.add('fa-eye-slash');
+        } else {
+          toggleIcon.classList.remove('fa-eye-slash');
+          toggleIcon.classList.add('fa-eye');
+        }
+      });
+    });

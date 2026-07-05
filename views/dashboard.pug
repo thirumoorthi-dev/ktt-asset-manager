@@ -1,0 +1,78 @@
+extends layout
+
+block content
+  .row.mb-4
+    .col
+      .p-4.bg-white.rounded-3.shadow-sm.border-start.border-4.border-info
+        h1.h3.fw-bold Welcome to Asset Management Portal
+        p.text-muted.mb-0 Tracking tangible items (laptops, cell phones, modems, tools, etc.) issued to company employees.
+  
+  .row.row-cols-1.row-cols-md-2.row-cols-xl-4.g-4.mb-5
+    .col
+      .card.h-100.border-0.shadow-sm
+        .card-body.d-flex.align-items-center
+          .rounded-circle.bg-primary-subtle.p-3.me-3.text-primary.fs-4.d-flex.align-items-center.justify-content-center(style="width: 50px; height: 50px;")
+            i.fa-solid.fa-users
+          div
+            h6.card-subtitle.text-muted.mb-1 Employees
+            h3.card-title.fw-bold.mb-0 #{activeEmployees} / #{totalEmployees}
+            small.text-muted.x-small Active / Total
+    .col
+      .card.h-100.border-0.shadow-sm
+        .card-body.d-flex.align-items-center
+          .rounded-circle.bg-success-subtle.p-3.me-3.text-success.fs-4.d-flex.align-items-center.justify-content-center(style="width: 50px; height: 50px;")
+            i.fa-solid.fa-circle-check
+          div
+            h6.card-subtitle.text-muted.mb-1 Assets in Stock
+            h3.card-title.fw-bold.mb-0 #{assetsInStock}
+            small.text-muted.x-small Ready to Issue
+    .col
+      .card.h-100.border-0.shadow-sm
+        .card-body.d-flex.align-items-center
+          .rounded-circle.bg-warning-subtle.p-3.me-3.text-warning.fs-4.d-flex.align-items-center.justify-content-center(style="width: 50px; height: 50px;")
+            i.fa-solid.fa-handshake
+          div
+            h6.card-subtitle.text-muted.mb-1 Assets Issued
+            h3.card-title.fw-bold.mb-0 #{assetsIssued}
+            small.text-muted.x-small Assigned to staff
+    .col
+      .card.h-100.border-0.shadow-sm
+        .card-body.d-flex.align-items-center
+          .rounded-circle.bg-danger-subtle.p-3.me-3.text-danger.fs-4.d-flex.align-items-center.justify-content-center(style="width: 50px; height: 50px;")
+            i.fa-solid.fa-indian-rupee-sign
+          div
+            h6.card-subtitle.text-muted.mb-1 Stock Valuation
+            h3.card-title.fw-bold.mb-0 ₹#{totalValue.toLocaleString('en-IN', {minimumFractionDigits: 2})}
+            small.text-muted.x-small Total in Stock
+
+  .row.g-4
+    .col-12
+      .card.border-0.shadow-sm
+        .card-header.bg-transparent.border-bottom.py-3
+          h5.fw-bold.mb-0 Quick Operations
+        .card-body
+          .row.g-3
+            .col-md-3
+              a.d-block.p-3.text-decoration-none.bg-light.rounded.border.h-100(href="/assets/issue")
+                div.fs-4.text-primary.mb-2
+                  i.fa-solid.fa-handshake
+                h6.fw-bold.text-dark.mb-1 Issue Asset
+                p.text-muted.small.mb-0 Assign an in-stock device or tool to an employee.
+            .col-md-3
+              a.d-block.p-3.text-decoration-none.bg-light.rounded.border.h-100(href="/assets/return")
+                div.fs-4.text-success.mb-2
+                  i.fa-solid.fa-rotate-left
+                h6.fw-bold.text-dark.mb-1 Return Asset
+                p.text-muted.small.mb-0 Collect an asset from an employee and specify return reason.
+            .col-md-3
+              a.d-block.p-3.text-decoration-none.bg-light.rounded.border.h-100(href="/assets/history")
+                div.fs-4.text-secondary.mb-2
+                  i.fa-solid.fa-clock-rotate-left
+                h6.fw-bold.text-dark.mb-1 Asset History
+                p.text-muted.small.mb-0 View the complete audit timeline of purchases, issues, and returns.
+            .col-md-3
+              a.d-block.p-3.text-decoration-none.bg-light.rounded.border.h-100(href="/assets/stock")
+                div.fs-4.text-info.mb-2
+                  i.fa-solid.fa-warehouse
+                h6.fw-bold.text-dark.mb-1 Stock View
+                p.text-muted.small.mb-0 Quick summary of available inventory and totals by physical branch.

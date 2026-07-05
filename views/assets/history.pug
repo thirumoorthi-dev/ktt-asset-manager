@@ -1,0 +1,105 @@
+extends ../layout
+
+block content
+  h2.fw-bold.mb-4 Asset History Audit
+
+  .card.border-0.shadow-sm.mb-5
+    .card-body.p-4
+      form(method="GET" action="/assets/history")
+        label.form-label.fw-bold(for="AssetId") Search / Select Asset to View History
+        .row.g-2
+          .col-md-9
+            select#AssetId.form-select(name="AssetId" required)
+              option(value="") -- Select Asset --
+              each asset in assets
+                option(value=asset.AssetId selected=(selectedAssetId === asset.AssetId)) #{asset.UniqueId} [#{asset.Make} #{asset.Model}] (SN: #{asset.SerialNumber}) #{asset.Status === 'Scrapped' ? '[SCRAPPED]' : ''}
+          .col-md-3.d-grid
+            button.btn.btn-primary(type="submit")
+              i.fa-solid.fa-magnifying-glass.me-2
+              | Load History
+
+  if selectedAsset
+    .row.g-4
+      .col-lg-4
+        .card.border-0.shadow-sm.h-100
+          .card-header.bg-transparent.border-bottom.py-3
+            h5.fw-bold.mb-0 Device Information
+          .card-body
+            .mb-3
+              span.text-muted.small.d-block Unique ID
+              span.fw-bold.fs-5.text-primary #{selectedAsset.UniqueId}
+            .mb-3
+              span.text-muted.small.d-block Serial Number
+              span.fw-bold.font-monospace #{selectedAsset.SerialNumber}
+            .mb-3
+              span.text-muted.small.d-block Manufacturer & Model
+              span.fw-bold #{selectedAsset.Make} #{selectedAsset.Model}
+            .mb-3
+              span.text-muted.small.d-block Category
+              span.badge.bg-secondary #{selectedAsset.Category ? selectedAsset.Category.CategoryName : '-'}
+            .mb-3
+              span.text-muted.small.d-block Registered Value
+              span.fw-bold.text-dark ₹#{parseFloat(selectedAsset.Value).toLocaleString('en-IN', {minimumFractionDigits: 2})}
+            .mb-3
+              span.text-muted.small.d-block Current Status
+              if selectedAsset.Status === 'InStock'
+                span.badge.bg-success-subtle.text-success.px-2.py-1.border.border-success-subtle In Stock
+              else if selectedAsset.Status === 'Issued'
+                span.badge.bg-warning-subtle.text-warning.px-2.py-1.border.border-warning-subtle Issued
+              else if selectedAsset.Status === 'Scrapped'
+                span.badge.bg-danger-subtle.text-danger.px-2.py-1.border.border-danger-subtle Scrapped
+            
+            if selectedAsset.Status === 'Issued' && selectedAsset.CurrentEmployee
+              .mt-4.p-3.bg-warning-subtle.bg-opacity-25.rounded.border.border-warning-subtle
+                span.text-muted.small.d-block Assigned Employee
+                span.fw-bold.text-warning-emphasis #{selectedAsset.CurrentEmployee.EmployeeName}
+                small.text-muted.d-block.x-small Code: #{selectedAsset.CurrentEmployee.EmployeeCode}
+                small.text-muted.d-block.x-small Dept: #{selectedAsset.CurrentEmployee.Department}
+
+      .col-lg-8
+        .card.border-0.shadow-sm
+          .card-header.bg-transparent.border-bottom.py-3
+            h5.fw-bold.mb-0 Lifecycle Timeline
+          .card-body.p-4
+            if history && history.length > 0
+              .timeline-container
+                each item in history
+                  .timeline-item.mb-4.d-flex
+                    .timeline-icon-container.me-3.text-center
+                      if item.ActionType === 'Purchase'
+                        .timeline-icon.bg-primary.text-white.rounded-circle.d-flex.align-items-center.justify-content-center(style="width: 40px; height: 40px;")
+                          i.fa-solid.fa-plus
+                      else if item.ActionType === 'Issue'
+                        .timeline-icon.bg-warning.text-dark.rounded-circle.d-flex.align-items-center.justify-content-center(style="width: 40px; height: 40px;")
+                          i.fa-solid.fa-handshake
+                      else if item.ActionType === 'Return'
+                        .timeline-icon.bg-success.text-white.rounded-circle.d-flex.align-items-center.justify-content-center(style="width: 40px; height: 40px;")
+                          i.fa-solid.fa-rotate-left
+                      else if item.ActionType === 'Scrap'
+                        .timeline-icon.bg-danger.text-white.rounded-circle.d-flex.align-items-center.justify-content-center(style="width: 40px; height: 40px;")
+                          i.fa-solid.fa-trash-can
+                    
+                    .timeline-content.p-3.bg-light.rounded.border.w-100
+                      .d-flex.justify-content-between.align-items-center.mb-2
+                        h6.fw-bold.mb-0
+                          if item.ActionType === 'Purchase'
+                            | Asset Purchased / Registered
+                          else if item.ActionType === 'Issue'
+                            | Issued to Employee
+                          else if item.ActionType === 'Return'
+                            | Returned to Stock
+                          else if item.ActionType === 'Scrap'
+                            | Asset Scrapped (Obsolete)
+                        
+                        span.text-muted.small
+                          i.fa-regular.fa-calendar-days.me-1
+                          | #{new Date(item.ActionDate).toLocaleDateString('en-IN', {day: 'numeric', month: 'short', year: 'numeric'})}
+                      
+                      if item.Employee
+                        p.mb-1.small
+                          strong Employee: 
+                          | #{item.Employee.EmployeeName} (#{item.Employee.EmployeeCode})
+                      
+                      p.mb-0.text-secondary.small #{item.Notes}
+            else
+              p.text-center.text-muted.my-4 No history records found for this asset.

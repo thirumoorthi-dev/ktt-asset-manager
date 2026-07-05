@@ -1,0 +1,67 @@
+extends ../layout
+
+block content
+  h2.fw-bold.mb-4 Branch Master
+
+  if error
+    .alert.alert-danger.alert-dismissible.fade.show.mb-4(role="alert")
+      i.fa-solid.fa-triangle-exclamation.me-2
+      | #{error}
+      button.btn-close(type="button" data-bs-dismiss="alert" aria-label="Close")
+
+  .row.g-4
+    .col-lg-8
+      .card.border-0.shadow-sm
+        .card-header.bg-transparent.border-bottom.py-3
+          h5.fw-bold.mb-0 Registered Branches
+        .card-body.p-4
+          .table-responsive
+            table#branchesTable.table.table-striped.table-hover.align-middle(style="width: 100%")
+              thead.table-dark
+                tr
+                  th Name
+                  th Status
+                  th Actions
+              tbody
+                if branches && branches.length > 0
+                  each branch in branches
+                    tr
+                      td
+                        span.fw-bold.text-dark #{branch.BranchName}
+                      td
+                        if branch.IsActive
+                          span.badge.bg-success-subtle.text-success.px-2.py-1.border.border-success-subtle Active
+                        else
+                          span.badge.bg-danger-subtle.text-danger.px-2.py-1.border.border-danger-subtle Inactive
+                      td
+                        a.btn.btn-sm.btn-outline-primary(href=`/branches?edit=${branch.BranchId}`)
+                          i.fa-solid.fa-pen-to-square.me-1
+                          | Edit
+                else
+                  tr
+                    td.text-center.text-muted(colspan="3") No branches found.
+    
+    .col-lg-4
+      .card.border-0.shadow-sm
+        .card-header.bg-transparent.border-bottom.py-3
+          h5.fw-bold.mb-0 #{editBranch ? 'Edit Branch' : 'Add Branch'}
+        .card-body.p-4
+          form(method="POST" action=(editBranch ? `/branches/edit/${editBranch.BranchId}` : "/branches/create"))
+            .mb-3
+              label.form-label.fw-semibold(for="BranchName") Branch Name *
+              input#BranchName.form-control(type="text" name="BranchName" value=(editBranch ? editBranch.BranchName : '') required placeholder="e.g. Chennai, Bangalore")
+            
+            if editBranch
+              .mb-4
+                label.form-label.fw-semibold(for="IsActive") Status
+                select#IsActive.form-select(name="IsActive")
+                  option(value="true" selected=editBranch.IsActive) Active
+                  option(value="false" selected=!editBranch.IsActive) Inactive
+
+            .d-grid.gap-2
+              button.btn.btn-primary(type="submit")
+                i.fa-solid.fa-floppy-disk.me-2
+                | #{editBranch ? 'Update Branch' : 'Save Branch'}
+              
+              if editBranch
+                a.btn.btn-outline-secondary(href="/branches") Cancel Edit
