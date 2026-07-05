@@ -4,12 +4,17 @@ require('dotenv').config();
 async function initDatabase() {
   const dbName = process.env.DB_NAME || 'ktt_assets';
   
+  const ssl = (process.env.DB_SSL === 'true' || (process.env.DB_HOST && process.env.DB_HOST !== '127.0.0.1' && process.env.DB_HOST !== 'localhost'))
+    ? { rejectUnauthorized: false }
+    : false;
+
   const config = {
     host: process.env.DB_HOST || '127.0.0.1',
     port: process.env.DB_PORT || 5432,
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
-    database: 'postgres'
+    database: 'postgres',
+    ssl: ssl
   };
 
   const client = new Client(config);
@@ -36,7 +41,8 @@ async function initDatabase() {
     port: process.env.DB_PORT || 5432,
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
-    database: dbName
+    database: dbName,
+    ssl: ssl
   };
   const dbClient = new Client(dbConfig);
   try {
