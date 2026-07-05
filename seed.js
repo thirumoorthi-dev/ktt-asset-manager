@@ -14,7 +14,7 @@ async function seed() {
     const passwordHash = await bcrypt.hash('Admin@1234', salt);
 
     await User.create({
-      username: 'admin',
+      username: 'Admin',
       passwordHash: passwordHash,
       role: 'admin',
       CreatedBy: SYSTEM_USER_ID
